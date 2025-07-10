@@ -1,10 +1,12 @@
 <template>
-  <section>Filter</section>
+  <section>
+    <coach-filter @change-filter="setFilter"></coach-filter>
+  </section>
   <section>
     <base-card>
       <div class="controls">
         <base-button mode="outline">Refresh</base-button>
-        <base-button link="true" to="/register"
+        <base-button :link="true" to="/register"
           >Register as a Coach</base-button
         >
       </div>
@@ -26,6 +28,7 @@
 <script>
 import { useCoachesStore } from "../../store";
 import CoachItem from "../../components/coaches/CoachItem.vue";
+import CoachFilter from "../../components/coaches/CoachFilter.vue";
 
 export default {
   setup() {
@@ -33,15 +36,45 @@ export default {
     return { coachesStore };
   },
 
-  components: { CoachItem },
+  data() {
+    return {
+      activeFilters: {
+        frontend: true,
+        backend: true,
+        career: true,
+      },
+    };
+  },
+
+  components: { CoachItem, CoachFilter },
 
   computed: {
     filteredCoaches() {
-      return this.coachesStore.getCoaches;
+      const coaches = this.coachesStore.getCoaches;
+      return coaches.filter((coach) => {
+        const filters = this.activeFilters;
+        const noFiltersActive =
+          !filters.frontend && !filters.backend && !filters.career;
+
+        if (noFiltersActive) return true;
+
+        if (filters.frontend && coach.areas.includes("frontend")) return true;
+        if (filters.backend && coach.areas.includes("backend")) return true;
+        if (filters.career && coach.areas.includes("career")) return true;
+
+        return false; // explicitly reject others
+      });
     },
 
     hasCoaches() {
       return this.coachesStore.hasCoaches;
+    },
+  },
+
+  methods: {
+    setFilter(updatedFilters) {
+      this.activeFilters = updatedFilters;
+      console.log(this.activeFilters);
     },
   },
 };

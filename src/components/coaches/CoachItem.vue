@@ -8,10 +8,10 @@
       >
     </div>
     <div class="actions">
-      <base-button :to="coachContactLink" :link="True" mode="outline"
+      <base-button :to="coachContactLink" :link="true" mode="outline"
         >Contact</base-button
       >
-      <base-button :to="coachDetailLink" :link="True">View Details</base-button>
+      <base-button :to="coachDetailLink" :link="true">View Details</base-button>
     </div>
   </li>
 </template>
