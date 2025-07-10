@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import { useUserStore } from "./user";
 
 export const useCoachesStore = defineStore("coaches", {
   state() {
@@ -26,6 +27,23 @@ export const useCoachesStore = defineStore("coaches", {
     };
   },
 
+  actions: {
+    registerCoach(data) {
+      const useStore = useUserStore();
+
+      const cleanedData = {
+        id: useStore.getUserID,
+        firstName: data.first,
+        lastName: data.last,
+        description: data.desc,
+        hourlyRate: data.rate,
+        areas: data.areas,
+      };
+
+      this.coaches.push(cleanedData);
+    },
+  },
+
   getters: {
     getCoaches(state) {
       return state.coaches;
@@ -33,6 +51,12 @@ export const useCoachesStore = defineStore("coaches", {
 
     hasCoaches(state) {
       return state.coaches && state.coaches.length > 0;
+    },
+
+    isCoach(state) {
+      const useStore = useUserStore();
+      const userId = useStore.getUserID;
+      return state.coaches.some((coach) => coach.id === userId);
     },
   },
 });
