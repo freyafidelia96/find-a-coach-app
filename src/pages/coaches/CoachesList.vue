@@ -1,16 +1,22 @@
 <template>
+  <base-dialog :show="!!error" title="An error occurred!" @close="handleError">
+    <p>{{ error }}</p>
+  </base-dialog>
   <section>
     <coach-filter @change-filter="setFilter"></coach-filter>
   </section>
   <section>
     <base-card>
       <div class="controls">
-        <base-button mode="outline">Refresh</base-button>
-        <base-button :link="true" to="/register" v-if="!isCoach"
+        <base-button mode="outline" @click="loadCoaches">Refresh</base-button>
+        <base-button :link="true" to="/register" v-if="!isCoach && !isLoading"
           >Register as a Coach</base-button
         >
       </div>
-      <ul v-if="hasCoaches">
+      <div v-if="isLoading">
+        <base-spinner></base-spinner>
+      </div>
+      <ul v-else-if="hasCoaches">
         <coach-item
           v-for="coach in filteredCoaches"
           :key="coach.id"
@@ -29,6 +35,7 @@
 import { useCoachesStore } from "../../store";
 import CoachItem from "../../components/coaches/CoachItem.vue";
 import CoachFilter from "../../components/coaches/CoachFilter.vue";
+import { handleError } from "vue";
 
 export default {
   setup() {
@@ -38,6 +45,8 @@ export default {
 
   data() {
     return {
+      isLoading: false,
+      error: null,
       activeFilters: {
         frontend: true,
         backend: true,
@@ -67,7 +76,7 @@ export default {
     },
 
     hasCoaches() {
-      return this.coachesStore.hasCoaches;
+      return !this.isLoading && this.coachesStore.hasCoaches;
     },
 
     isCoach() {
@@ -80,6 +89,24 @@ export default {
       this.activeFilters = updatedFilters;
       console.log(this.activeFilters);
     },
+
+    async loadCoaches() {
+      this.isLoading = true;
+      try {
+        await this.coachesStore.loadCoaches();
+      } catch (error) {
+        this.error = error.message || "Something went wrong!";
+      }
+      this.isLoading = false;
+    },
+
+    handleError() {
+      this.error = null;
+    },
+  },
+
+  created() {
+    this.loadCoaches;
   },
 };
 </script>

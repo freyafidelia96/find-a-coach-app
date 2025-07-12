@@ -21,6 +21,7 @@ export default {
 
   methods: {
     saveData(data) {
+      console.log(data);
       this.coachesStore.registerCoach(data);
       this.$router.replace("/coaches");
     },

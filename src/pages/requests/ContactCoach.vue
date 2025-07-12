@@ -51,19 +51,13 @@ export default {
         return;
       }
 
-      this.requestStore.contactCoach({
+      this.requestStore.sendRequest({
         message: this.message,
         email: this.email,
-        coachId: this.$route.id,
+        coachId: this.$route.params.id,
       });
 
-      console.log({
-        message: this.message,
-        email: this.email,
-        coachId: this.$route.id,
-      });
-
-      this.$router.replace("/coaches");
+      this.$router.replace("/requests");
     },
   },
 };

@@ -28,11 +28,11 @@ export const useCoachesStore = defineStore("coaches", {
   },
 
   actions: {
-    registerCoach(data) {
+    async registerCoach(data) {
       const useStore = useUserStore();
 
+      const userId = useStore.getUserId;
       const cleanedData = {
-        id: useStore.getUserID,
         firstName: data.first,
         lastName: data.last,
         description: data.desc,
@@ -40,7 +40,56 @@ export const useCoachesStore = defineStore("coaches", {
         areas: data.areas,
       };
 
-      this.coaches.push(cleanedData);
+      const response = await fetch(
+        `https://find-a-coach-app-bd2d2-default-rtdb.firebaseio.com/coaches/${userId}.json`,
+        {
+          method: "PUT",
+          body: JSON.stringify(cleanedData),
+        }
+      );
+
+      if (!response.ok) {
+        // error
+      }
+
+      this.coaches.push({
+        ...cleanedData,
+        id: userId,
+      });
+    },
+
+    async loadCoaches() {
+      const coaches = [];
+
+      const response = await fetch(
+        `https://find-a-coach-app-bd2d2-default-rtdb.firebaseio.com/coaches.json`
+      );
+
+      const responseData = await response.json();
+
+      if (!response.ok) {
+        const error = new Error(responseData.message || "Failed to fetch!");
+        throw error;
+      }
+
+      console.log(response);
+
+      console.log(responseData);
+
+      for (const key in responseData) {
+        const coach = {
+          id: key,
+          firstName: responseData[key].firstName,
+          lastName: responseData[key].lastName,
+          description: responseData[key].description,
+          hourlyRate: responseData[key].hourlyRate,
+          areas: responseData[key].areas,
+        };
+
+        coaches.push(coach);
+      }
+
+      this.coaches = coaches;
     },
   },
 
